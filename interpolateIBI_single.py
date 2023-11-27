@@ -18,8 +18,8 @@ import matplotlib.pyplot as plt
 INTERVAL_MS = 500
 
 # I/O
-INPUT_DIR = 'ibiData'
-OUTPUT_DIR = 'ibiDataInterpolated'
+INPUT_DIR = 'ibiData_single'
+OUTPUT_DIR = 'ibiDataInterpolated_single'
 
 # I/0 paths
 input_dir_path = os.path.join(os.getcwd(), INPUT_DIR)
