@@ -12,7 +12,6 @@ import glob
 import numpy as np
 import pandas as pd
 from scipy.interpolate import CubicSpline
-import matplotlib.pyplot as plt
 
 # interval of interpolated samples
 INTERVAL_MS = 500
