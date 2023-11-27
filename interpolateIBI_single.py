@@ -48,7 +48,7 @@ for input_path in input_paths:
     # Generate time grid for interpolation
     t_ms_interpl = np.arange(min(t_ms), max(t_ms), INTERVAL_MS)
 
-    # Interpolate values at the finer time points
+    # Get sample values at new grid
     ibi_ms_interpl = cs(t_ms_interpl)
 
     # scale interpolated ibi so that sum of ibis matches um of original ibis
