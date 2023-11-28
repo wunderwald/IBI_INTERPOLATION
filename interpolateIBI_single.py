@@ -1,7 +1,6 @@
 '''
 Transform a discrete list ob inter-beat intervals (IBIs) to a continuous function using cubic spline interpolation.
 The continuous function is sampled at a fixed sampling interval. 
-The newly obtained samples are then scaled so that their sum matches the sum of the original IBIs.
 
 by Moritz Wunderwald, 2023
 '''
@@ -15,6 +14,9 @@ from scipy.interpolate import CubicSpline
 
 # interval of interpolated samples
 INTERVAL_MS = 500
+
+# scale interpolated IBIs so that their sum matches length of the original IBIs
+USE_SCALING = False
 
 # I/O
 INPUT_DIR = 'ibiData_single'
@@ -50,11 +52,11 @@ for input_path in input_paths:
     # Get sample values at new grid
     ibi_ms_interpl = cs(t_ms_interpl)
 
-    # scale interpolated ibi so that sum of ibis matches um of original ibis
+    # optionally scale interpolated ibi
     sum_ibi_original = sum(ibi_ms)
     sum_ibi_interpl = sum(ibi_ms_interpl)
     scl = sum_ibi_original / sum_ibi_interpl
-    ibi_ms_interpl_scl = ibi_ms_interpl * scl
+    ibi_ms_interpl_out = ibi_ms_interpl * (scl if USE_SCALING else 1)
 
     # make output path
     input_file_w_extension = os.path.basename(input_path)
@@ -62,6 +64,6 @@ for input_path in input_paths:
     output_file = f"{input_filename}_interpolated.csv"
     output_path = os.path.join(output_dir_path, output_file)
 
-    # write interpolated and scaled ibi data to a csv file
-    csv_df = pd.DataFrame({'t_ms': t_ms_interpl, 'ibi_ms': ibi_ms_interpl_scl}).round(4)
+    # write interpolated ibi data to a csv file
+    csv_df = pd.DataFrame({'t_ms': t_ms_interpl, 'ibi_ms': ibi_ms_interpl_out}).round(4)
     csv_df.to_csv(output_path, index=False)

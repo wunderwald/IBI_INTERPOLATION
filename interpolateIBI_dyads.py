@@ -1,7 +1,6 @@
 '''
 Transform a discrete list of inter-beat intervals (IBIs) to a continuous function using cubic spline interpolation.
 The continuous function is sampled at a fixed sampling interval. 
-The newly obtained samples are then scaled so that their sum matches the length of the original recording.
 
 by Moritz Wunderwald, 2023
 '''
@@ -15,6 +14,9 @@ from scipy.interpolate import CubicSpline
 
 # interval of interpolated samples
 INTERVAL_MS = 500
+
+# scale interpolated IBIs so that their sum matches length of the original recording
+USE_SCALING = False
 
 # I/O
 INPUT_DIR = 'ibiData_dyads'
@@ -70,9 +72,9 @@ for input_path in input_paths:
     scl_ecg1 = recording_length / sum_ibi_interpl_ecg1
     scl_ecg2 = recording_length / sum_ibi_interpl_ecg2
     
-    # scale interpolated ibi so that sum of ibis matches sum of original ibis
-    ibi_ms_interpl_scl_ecg1 = ibi_ms_interpl_ecg1 * scl_ecg1
-    ibi_ms_interpl_scl_ecg2 = ibi_ms_interpl_ecg2 * scl_ecg2
+    # optionally scale interpolated ibi
+    ibi_ms_interpl_out_ecg1 = ibi_ms_interpl_ecg1 * (scl_ecg1 if USE_SCALING else 1)
+    ibi_ms_interpl_out_ecg2 = ibi_ms_interpl_ecg2 * (scl_ecg2 if USE_SCALING else 1)
 
     # make output path
     input_file_w_extension = os.path.basename(input_path)
@@ -80,10 +82,10 @@ for input_path in input_paths:
     output_file = f"{input_filename}_interpolated.csv"
     output_path = os.path.join(output_dir_path, output_file)
 
-    # write interpolated and scaled ibi data to a csv file
+    # write interpolated ibi data to a csv file
     csv_df = pd.DataFrame({
         't_ms': t_ms_interpl, 
-        'ibi_ms_ecg1': ibi_ms_interpl_scl_ecg1, 
-        'ibi_ms_ecg2': ibi_ms_interpl_scl_ecg2, 
+        'ibi_ms_ecg1': ibi_ms_interpl_out_ecg1, 
+        'ibi_ms_ecg2': ibi_ms_interpl_out_ecg2, 
     }).round(4)
     csv_df.to_csv(output_path, index=False)
