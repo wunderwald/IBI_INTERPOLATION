@@ -11,6 +11,7 @@ import glob
 import numpy as np
 import pandas as pd
 from scipy.interpolate import CubicSpline
+from filterIBI import invalidIbiIndices
 
 # interval of interpolated samples
 INTERVAL_MS = 500
@@ -40,8 +41,13 @@ for input_path in input_paths:
 
     # read ibi data
     input_data_df = pd.read_csv(input_path)
-    t_ms = input_data_df['t_ms'].to_numpy()
-    ibi_ms = input_data_df[' ibi_ms'].to_numpy()
+    t_ms_raw = input_data_df['t_ms'].to_numpy()
+    ibi_ms_raw = input_data_df[' ibi_ms'].to_numpy()
+
+    # clean ibi data
+    delete_indices = invalidIbiIndices(ibi_ms_raw)
+    t_ms = np.delete(t_ms_raw, delete_indices)
+    ibi_ms = np.delete(ibi_ms_raw, delete_indices)
 
     # Create a cubic spline interpolation
     cs = CubicSpline(t_ms, ibi_ms)

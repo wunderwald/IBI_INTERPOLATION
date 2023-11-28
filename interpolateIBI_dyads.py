@@ -11,12 +11,16 @@ import glob
 import numpy as np
 import pandas as pd
 from scipy.interpolate import CubicSpline
+from filterIBI import invalidIbiIndices
 
 # interval of interpolated samples
 INTERVAL_MS = 500
 
 # scale interpolated IBIs so that their sum matches length of the original recording
 USE_SCALING = False
+
+# let t in output time series start at 0
+SHIFT_TIME = True
 
 # I/O
 INPUT_DIR = 'ibiData_dyads'
@@ -49,10 +53,18 @@ for input_path in input_paths:
     sampleIsEcg2 = ecg_markers == ' ecg2'
     
     # split data
-    t_ms_ecg1 = t_ms_combined[sampleIsEcg1]
-    ibi_ms_ecg1 = ibi_ms_combined[sampleIsEcg1]
-    t_ms_ecg2 = t_ms_combined[sampleIsEcg2]
-    ibi_ms_ecg2 = ibi_ms_combined[sampleIsEcg2]
+    t_ms_ecg1_raw = t_ms_combined[sampleIsEcg1]
+    ibi_ms_ecg1_raw = ibi_ms_combined[sampleIsEcg1]
+    t_ms_ecg2_raw = t_ms_combined[sampleIsEcg2]
+    ibi_ms_ecg2_raw = ibi_ms_combined[sampleIsEcg2]
+
+    # filter ibi data
+    delete_indices_ecg1 = invalidIbiIndices(ibi_ms_ecg1_raw)
+    delete_indices_ecg2 = invalidIbiIndices(ibi_ms_ecg2_raw)
+    ibi_ms_ecg1 = np.delete(ibi_ms_ecg1_raw, delete_indices_ecg1)
+    t_ms_ecg1 = np.delete(t_ms_ecg1_raw, delete_indices_ecg1)
+    ibi_ms_ecg2 = np.delete(ibi_ms_ecg2_raw, delete_indices_ecg2)
+    t_ms_ecg2 = np.delete(t_ms_ecg2_raw, delete_indices_ecg2)
 
     # Create a cubic spline interpolation
     cs_ecg1 = CubicSpline(t_ms_ecg1, ibi_ms_ecg1)
