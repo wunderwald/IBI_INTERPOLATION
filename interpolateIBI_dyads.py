@@ -88,6 +88,9 @@ for input_path in input_paths:
     ibi_ms_interpl_out_ecg1 = ibi_ms_interpl_ecg1 * (scl_ecg1 if USE_SCALING else 1)
     ibi_ms_interpl_out_ecg2 = ibi_ms_interpl_ecg2 * (scl_ecg2 if USE_SCALING else 1)
 
+    # optionally shift time
+    t_ms_interpl_out = t_ms_interpl - (t_ms_interpl[0] if SHIFT_TIME else 0)
+
     # make output path
     input_file_w_extension = os.path.basename(input_path)
     input_filename, _ = os.path.splitext(input_file_w_extension)
@@ -96,7 +99,7 @@ for input_path in input_paths:
 
     # write interpolated ibi data to a csv file
     csv_df = pd.DataFrame({
-        't_ms': t_ms_interpl, 
+        't_ms': t_ms_interpl_out, 
         'ibi_ms_ecg1': ibi_ms_interpl_out_ecg1, 
         'ibi_ms_ecg2': ibi_ms_interpl_out_ecg2, 
     }).round(4)
